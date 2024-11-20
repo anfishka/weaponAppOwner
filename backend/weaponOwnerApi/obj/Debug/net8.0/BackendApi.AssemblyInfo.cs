@@ -11,12 +11,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("weaponOwnerApi")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("BackendApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0abb81908c8194064c81d55e540f71c9fccc6b6e")]
-[assembly: System.Reflection.AssemblyProductAttribute("weaponOwnerApi")]
-[assembly: System.Reflection.AssemblyTitleAttribute("weaponOwnerApi")]
+[assembly: System.Reflection.AssemblyProductAttribute("BackendApi")]
+[assembly: System.Reflection.AssemblyTitleAttribute("BackendApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Создано классом WriteCodeFragment MSBuild.
