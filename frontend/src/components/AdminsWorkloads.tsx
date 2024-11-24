@@ -16,18 +16,28 @@ interface Product {
   adminId: number;
 }
 
+
+const apiUrl = "https://gentle-tree-06ebec603.5.azurestaticapps.net"
+
 const AdminsWorkloads: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // Получение adminId из URL
   const [data, setData] = useState<Product[]>([]); // Данные для таблицы
   const [loading, setLoading] = useState<boolean>(true); // Состояние загрузки
   const [error, setError] = useState<string | null>(null); // Состояние ошибки
+  const handleViewProduct = (productId: number) => {
+    // Здесь укажите URL клиента
 
+    //FRONTEND???????????????
+    const clientUrl = `${apiUrl}/frontend/product/${productId}`;
+    window.open(clientUrl, "_blank"); // Перенаправление на клиент
+  };
   useEffect(() => {
     // Получение данных от API
     const fetchProductsByAdmin = async () => {
       try {
         const response = await axios.get<Product[]>(
-          `https://localhost:7208/api/Products/by-admin/${id}`
+         
+          `${apiUrl}/api/Products/by-admin/${id}`
         );
         setData(response.data);
       } catch (err: any) {
@@ -82,6 +92,7 @@ const AdminsWorkloads: React.FC = () => {
             backgroundColor: "#BC4A00",
             border: "none",
           }}
+          onClick={() => handleViewProduct(record.id)} // Обработчик для кнопки
         >
           Посмотреть
         </Button>

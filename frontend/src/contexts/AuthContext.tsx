@@ -1,47 +1,63 @@
-import React, { createContext, useState, useContext } from "react";
-import axios from "axios";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Типы для контекста авторизации
-interface AuthContextType {
+interface User {
+  id: number;
+  name: string;
+}
+
+interface AuthContextProps {
   isAuthenticated: boolean;
-  user: { id: string; name: string } | null;
-  login: (email: string, password: string) => Promise<void>;
+  user: User | null;
+  login: (token: string, userData: User) => void; // Метод для логина
+ // logout: () => void; // Метод для выхода
+}
+
+
+
+interface User {
+  id: number;
+  name: string;
+}
+
+interface AuthContextProps {
+  isAuthenticated: boolean;
+  user: User | null;
+  login: (token: string, userData: User) => void;
   logout: () => void;
 }
 
-// Создание контекста
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ id: string; name: string } | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
-  // Функция для входа
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await axios.post("/api/auth/login", { email, password });
-      const { token, user } = response.data;
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const savedUser = localStorage.getItem("user");
 
-      // Сохраняем токен в localStorage
-      localStorage.setItem("token", token);
-
-      // Обновляем состояние авторизации
-      setIsAuthenticated(true);
-      setUser(user);
-    } catch (error) {
-      console.error("Ошибка авторизации", error);
-      throw new Error("Неверный логин или пароль");
+    if (token && savedUser) {
+      setAuthenticated(true);
+      setUser(JSON.parse(savedUser));
     }
+  }, []);
+
+  const login = (token: string, userData: User) => {
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+    setAuthenticated(true);
+    setUser(userData);
+    navigate("/"); // Перенаправление на главную страницу
   };
 
-  // Функция для выхода
   const logout = () => {
-    // Удаляем токен из localStorage
-    localStorage.removeItem("token");
-
-    // Сбрасываем состояние
-    setIsAuthenticated(false);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    setAuthenticated(false);
     setUser(null);
+    navigate("/login"); // Перенаправление на страницу логина
   };
 
   return (
@@ -51,11 +67,11 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
   );
 };
 
-// Хук для использования AuthContext
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth должен использоваться внутри AuthProvider");
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };
+

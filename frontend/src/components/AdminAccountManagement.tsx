@@ -5,6 +5,9 @@ import axios from "axios";
 
 const { Text } = Typography;
 
+const apiUrl = process.env.REACT_APP_API_URL;
+
+
 const AdminAccountManagement: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // Получение ID из маршрута
   const [isActive, setIsActive] = useState(true); // Состояние активности
@@ -25,7 +28,7 @@ const AdminAccountManagement: React.FC = () => {
     const fetchAdmin = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://localhost:7162/api/admins/${id}`);
+        const response = await axios.get(`${apiUrl}/api/admins/${id}`);
         setAdminData(response.data);
         setIsActive(response.data.is_active); // Установить начальное состояние Switch
       } catch (error: any) {
@@ -75,7 +78,7 @@ const AdminAccountManagement: React.FC = () => {
       console.log("Отправляем PATCH-запрос:", patchDoc);
   
       const response = await axios.patch(
-        `https://localhost:7162/api/Admins/${id}`,
+        `${apiUrl}/api/Admins/${id}`,
         patchDoc,
         {
           headers: { "Content-Type": "application/json-patch+json" },

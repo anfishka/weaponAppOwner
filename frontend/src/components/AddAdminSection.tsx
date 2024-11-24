@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Switch } from "antd";
 
+const apiUrl = process.env.REACT_APP_API_URL;
+
+
 interface Admin {
   id?: number;
   username: string;
@@ -91,7 +94,8 @@ const AddAdminSection: React.FC = () => {
     setLoading(true);
     setMessage(null); // Очистка предыдущего сообщения
     try {
-      const response = await axios.post("https://localhost:7162/api/admins", admin);
+      const response = await axios.post(`${apiUrl}/api/admins`, admin);
+      
       console.log(response)
       setMessage(`Администратор успешно добавлен! `);
       setAdmin({

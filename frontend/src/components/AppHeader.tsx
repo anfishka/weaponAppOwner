@@ -5,7 +5,8 @@ import { searchAdmins, Admin } from "../utils/api";
 
 const { Header } = Layout;
 
-const AppHeader: React.FC = () => {
+const AppHeader: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+
   const [searchText, setSearchText] = useState<string>(""); // Текст ввода
   const [searchResults, setSearchResults] = useState<Admin[]>([]); // Результаты поиска
   const [loading, setLoading] = useState<boolean>(false); // Индикатор загрузки
@@ -48,6 +49,13 @@ const AppHeader: React.FC = () => {
     navigate(`/workloads/${adminId}`);
     console.log("ok")
   };
+
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+  //  setAuthenticated(false);
+    navigate("/login");
+  };
   return (
     <div>
       <Header
@@ -67,7 +75,7 @@ const AppHeader: React.FC = () => {
         >
           Weapon - Owner Panel
         </div>
-
+        <Button onClick={handleLogout}>Выйти</Button>
         {/* Поле поиска с кнопкой */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <Spin spinning={loading}>
@@ -127,6 +135,7 @@ const AppHeader: React.FC = () => {
           <p>Ничего не найдено</p>
         )}
       </div>
+      <div style={{ flex: 1, display: "flex" }}>{children}</div>
     </div>
   );
 };

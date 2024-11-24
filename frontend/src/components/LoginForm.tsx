@@ -1,46 +1,48 @@
 import React, { useState } from "react";
+import { Button, Form, Input, message } from "antd";
 import { useAuth } from "../contexts/AuthContext";
+import axios from "axios";
+
+const apiUrl = process.env.REACT_APP_API_URL;
+
+
 
 const LoginForm: React.FC = () => {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (values: { username: string; password: string }) => {
+    setLoading(true);
     try {
-      await login(email, password);
-      alert("Вход выполнен!");
-    } catch (err: any) {
-      setError(err.message);
+      const response = await axios.post(`${apiUrl}/api/AdminAuth/login`, values, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const { token, admin } = response.data;
+      login(token, { id: admin.id, name: admin.username }); // Передача токена и данных пользователя
+      message.success("Успешный вход!");
+    } catch (error: any) {
+      console.error("Ошибка входа:", error);
+      message.error("Неверное имя пользователя или пароль.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Вход</h2>
-      <label>
-        Email:
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </label>
-      <label>
-        Пароль:
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </label>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <button type="submit">Войти</button>
-    </form>
+    <Form onFinish={handleLogin}>
+      <Form.Item name="username" rules={[{ required: true, message: "Введите имя пользователя!" }]}>
+        <Input placeholder="Имя пользователя" />
+      </Form.Item>
+      <Form.Item name="password" rules={[{ required: true, message: "Введите пароль!" }]}>
+        <Input.Password placeholder="Пароль" />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit" loading={loading}>
+          Войти
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 

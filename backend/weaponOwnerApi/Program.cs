@@ -1,38 +1,66 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
-using weaponOwnerApi.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Data.SqlClient;
+using System.Text;
+using weaponOwnerApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
-/*
-// Add services to the container.
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddControllers()
-      .AddNewtonsoftJson(options =>
-      {
-          options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
-      }); ;
-
-*/
+// Подключение к базе данных
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AzureSqlDb")));
 
 // Проверка подключения
-var connectionString = builder.Configuration.GetConnectionString("AzureSqlDb");
 try
 {
-    using (var connection = new SqlConnection(connectionString))
+    using (var connection = new SqlConnection(builder.Configuration.GetConnectionString("AzureSqlDb")))
     {
         connection.Open();
-        Console.WriteLine("Подключение к Azure SQL Server установлено успешно!");
+        Console.WriteLine("Подключение к базе данных успешно!");
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Ошибка подключения: {ex.Message}");
+    Console.WriteLine($"Ошибка подключения к базе данных: {ex.Message}");
 }
+
+// Настройка JWT
+// Чтение настроек JWT из конфигурации
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]))
+    };
+});
+
+
+
+// Настройка CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("https://gentle-tree-06ebec603.5.azurestaticapps.net", "https://agreeable-ground-0c4bd8403.5.azurestaticapps.net", "https://ambitious-ocean-0eab55e03.5.azurestaticapps.net")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()
+              .WithExposedHeaders("Content-Length");
+    });
+});
 
 // Настройка контроллеров и JSON
 builder.Services.AddControllers()
@@ -40,25 +68,12 @@ builder.Services.AddControllers()
     {
         options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
     });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins("http://localhost:3001", "http://localhost:3000")
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-         .WithExposedHeaders("Content-Length");
-    });
-});
-
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -69,49 +84,9 @@ app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
-
+app.UseAuthentication(); // Добавляем аутентификацию
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Define search endpoint for admins
-app.MapGet("/admins/search", async (string? query, AppDbContext context) =>
-{
-    if (string.IsNullOrWhiteSpace(query))
-    {
-        return Results.BadRequest("Search query cannot be empty.");
-    }
-
-    // Поиск администраторов по всем заданным полям
-    var admins = await context.Admins
-        .Where(a =>
-            EF.Functions.Like(a.id.ToString(), $"%{query}%") || // Частичное совпадение по ID
-            EF.Functions.Like(a.first_name, $"%{query}%") ||   // Частичное совпадение по имени
-            EF.Functions.Like(a.last_name, $"%{query}%") ||    // Частичное совпадение по фамилии
-            EF.Functions.Like(a.username, $"%{query}%") ||    // Частичное совпадение по логину
-            EF.Functions.Like(a.email, $"%{query}%"))         // Частичное совпадение по email
-        .Select(a => new
-        {
-            a.id,
-            a.first_name,
-            a.last_name,
-            a.username,
-            a.email,
-            a.is_active,
-            a.card_count
-        })
-        .ToListAsync();
-
-    if (!admins.Any())
-    {
-        return Results.NotFound("No matching admins found.");
-    }
-
-    return Results.Ok(admins);
-})
-.WithName("SearchAdmins");
-
-
 app.Run();
-
-

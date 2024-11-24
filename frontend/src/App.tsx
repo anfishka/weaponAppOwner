@@ -1,59 +1,54 @@
 import React from "react";
-import './App.css';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Footer from "./layouts/Footer";
 import { AuthProvider } from "./contexts/AuthContext";
-import Sidebar from "./components/Sidebar"
-import AdminsSection from "./components/AdminsSection";
-import SettingsSection from "./components/SettingsSection";
-import AppHeader from "./components/AppHeader";
+import LoginForm from "./components/LoginForm";
 import Home from "./components/Home";
-import ErrorBoundary from "antd/es/alert/ErrorBoundary";
-import AdminsWorkloads from "./components/AdminsWorkloads";
+import Profile from "./components/Profile";
+import PrivateRoute from "./components/PrivateRoute";
+import Sidebar from "./components/Sidebar";
+import AdminsSection from "./components/AdminsSection";
+
+import SettingsSection from "./components/SettingsSection";
 import AddAdminSection from "./components/AddAdminSection";
+import AdminsWorkloads from "./components/AdminsWorkloads";
+import AppHeader from "./components/AppHeader";
 
-
-const App: React.FC = () => 
-  {
-  return( 
-    <ErrorBoundary>
-  <AuthProvider>
-  <BrowserRouter>
-      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-        {/* Header — фиксированная шапка */}
-        
-           {/* Header */}
-           <AppHeader />
-        <div style={{ display: "flex", flex: 1 }}>
-          {/* Sidebar слева */}
-          <Sidebar />
-
-          {/* Контент справа от Sidebar */}
-          <div style={{ marginLeft: 256, padding: 20, width: "100%" }}>
-            <main>
-              <Routes>
-                {/* Главная страница */}
-                <Route path="/" element={<Home />} />
-                <Route path="/admins" element={<AdminsSection />} />
-                {/* Страница с нагрузкой администраторов */}
-                <Route path="/workloads/:id" element={<AdminsWorkloads />} />
-                {/* Страница настроек */}
-                <Route path="//settings/:id" element={<SettingsSection />} />
-                <Route path="/addadmin" element={<AddAdminSection />} />
-
-   
-                
-              </Routes>
-            </main>
-          </div>
-        </div>
-        <Footer />
-      </div>
+const App: React.FC = () => {
+  return (
+ <BrowserRouter> 
+        <AuthProvider>
+        <Routes>
+          {/* Страница логина */}
+          <Route path="/login" element={<LoginForm />} />
+          
+          {/* Приложение с Sidebar */}
+          <Route
+            path="/*"
+            element={
+              <PrivateRoute>
+                   <AppHeader>
+                 
+                   <Sidebar />
+              
+                  <div style={{ flex: 1, padding: 20 }}>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/admins" element={<AdminsSection />} />
+                      <Route path="/workloads/:id" element={<AdminsWorkloads />} />
+                      <Route path="/settings/:id" element={<SettingsSection />} />
+                      <Route path="/addadmin" element={<AddAdminSection />} />
+                    </Routes>
+                  </div>
+                </AppHeader>
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+    </AuthProvider>  
     </BrowserRouter>
-</AuthProvider> 
-</ErrorBoundary>
-);
-  }
-
+  );
+};
 
 export default App;
+

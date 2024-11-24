@@ -1,0 +1,13 @@
+{
+    "routes": [
+      {
+        "route": "/api/*",
+        "backend": "api"
+      },
+      {
+        "route": "/*",
+        "serve": "/index.html"
+      }
+    ]
+  }
+  

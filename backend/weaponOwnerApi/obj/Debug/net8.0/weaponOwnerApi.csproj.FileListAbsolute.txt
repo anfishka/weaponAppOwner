@@ -171,3 +171,5 @@ E:\weaponAppOwner\backend\weaponOwnerApi\obj\Debug\net8.0\refint\weaponOwnerApi.
 E:\weaponAppOwner\backend\weaponOwnerApi\obj\Debug\net8.0\weaponOwnerApi.pdb
 E:\weaponAppOwner\backend\weaponOwnerApi\obj\Debug\net8.0\weaponOwnerApi.genruntimeconfig.cache
 E:\weaponAppOwner\backend\weaponOwnerApi\obj\Debug\net8.0\ref\weaponOwnerApi.dll
+E:\weaponAppOwner\backend\weaponOwnerApi\bin\Debug\net8.0\BCrypt.Net-Next.dll
+E:\weaponAppOwner\backend\weaponOwnerApi\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

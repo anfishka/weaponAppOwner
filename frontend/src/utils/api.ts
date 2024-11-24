@@ -1,5 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 
+ const apiUrlProduct = "https://gentle-tree-06ebec603.5.azurestaticapps.net";
+const apiUrl = process.env.REACT_APP_API_URL;
+
 // Интерфейс администратора
 export interface Admin {
   id: number;
@@ -25,29 +28,29 @@ export interface Product {
 
 // Функция получения всех администраторов
 export const fetchAdmins = async (): Promise<Admin[]> => {
-  const response = await axios.get<Admin[]>("https://localhost:7162/api/admins/");
+  const response = await axios.get<Admin[]>(`${apiUrl}/api/admins/`);
   return response.data;
 };
 
 // Функция получения администратора по ID
 export const fetchAdminById = async (id: number): Promise<Admin> => {
-  const response = await axios.get<Admin>(`https://localhost:7162/api/admins/${id}`);
+  const response = await axios.get<Admin>(`${apiUrl}/api/admins/${id}`);
   return response.data;
 };
 
 // Функция обновления данных администратора
 export const updateAdmin = async (id: number, updatedData: Partial<Admin>): Promise<Admin> => {
-  const response = await axios.put<Admin>(`https://localhost:7162/api/admins/${id}`, updatedData);
+  const response = await axios.put<Admin>(`${apiUrl}/api/admins/${id}`, updatedData);
   return response.data;
 };
 
 // Функция удаления администратора (опционально)
 export const deleteAdmin = async (id: number): Promise<void> => {
-  await axios.delete(`https://localhost:7162/api/admins/${id}`);
+  await axios.delete(`${apiUrl}/api/admins/${id}`);
 };
 
 export const searchAdmins = async (query: string): Promise<Admin[]> => {
-  const response = await axios.get<Admin[]>(`https://localhost:7162/admins/search?query=${query}`);
+  const response = await axios.get<Admin[]>(`${apiUrl}/admins/search?query=${query}`);
   return response.data;
 };
 export const updateProductPartially = async (
@@ -62,7 +65,7 @@ export const updateProductPartially = async (
   }));
 
   await axios.patch(
-    `https://localhost:7208/api/Products/${id}`, // Указываем правильный URL
+    `${apiUrlProduct}/api/Products/${id}`, // Указываем правильный URL
     patchBody,
     {
       headers: {
@@ -72,11 +75,13 @@ export const updateProductPartially = async (
   );
 };
 
+
+
 export const getProductsByAdmin = async (
   adminId: number
 ): Promise<Product[]> => {
   const response: AxiosResponse<Product[]> = await axios.get(
-    `https://localhost:7208/api/Products/by-admin/${adminId}`
+    `${apiUrlProduct}/api/Products/by-admin/${adminId}`
   );
   return response.data;
 };
