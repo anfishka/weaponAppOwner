@@ -1,54 +1,55 @@
 import React, { useState } from "react";
-import { Layout, Input, message } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Layout, Input, Button, message, Spin } from "antd";
+import { useNavigate } from "react-router-dom";
+import { searchAdmins, Admin } from "../utils/api";
 
 const { Header } = Layout;
-const { Search } = Input;
-
-// Тип для администратора
-interface Admin {
-  id: number;
-  name: string;
-  surname: string;
-}
-
-// Пример данных администраторов
-const adminData: Admin[] = [
-  { id: 1, name: "Иван", surname: "Иванов" },
-  { id: 2, name: "Пётр", surname: "Петров" },
-  { id: 3, name: "Сергей", surname: "Сергеев" },
-  { id: 4, name: "Анна", surname: "Антонова" },
-];
 
 const AppHeader: React.FC = () => {
-  const [searchText, setSearchText] = useState("");
-  const navigate = useNavigate(); 
-  const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>(adminData);
+  const [searchText, setSearchText] = useState<string>(""); // Текст ввода
+  const [searchResults, setSearchResults] = useState<Admin[]>([]); // Результаты поиска
+  const [loading, setLoading] = useState<boolean>(false); // Индикатор загрузки
+  const navigate = useNavigate(); // Для навигации между страницами
 
-  // Обработка ввода в строке поиска
-  const handleSearch = (value: string) => {
-    setSearchText(value);
-
-    // Фильтруем администраторов
-    const filtered = adminData.filter(
-      (admin) =>
-        admin.id.toString() === value || // Точный поиск по ID
-      admin.name.toLowerCase().includes(value.toLowerCase()) || // Поиск по имени
-      admin.surname.toLowerCase().includes(value.toLowerCase()) // Поиск по фамилии
-    );
-    if (filtered.length > 0) {
-      // Если администратор найден, перенаправляем на его воркфлоу
-      const selectedAdmin = filtered[0];
-      navigate(`/workloads/${selectedAdmin.id}`, { state: selectedAdmin });
-    } else {
-      // Если ничего не найдено, показываем сообщение
-      message.error("Администратор не найден");
+  // Функция поиска администраторов
+  const fetchSearchResults = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]); // Очищаем результаты, если запрос пустой
+      return;
     }
-    setFilteredAdmins(filtered); // Обновляем отфильтрованные данные
+
+    try {
+      setLoading(true);
+      const results = await searchAdmins(query); // Вызов API
+      setSearchResults(results);
+    } catch (error: any) {
+      message.error(error.response?.data?.message || "Ошибка поиска.");
+      setSearchResults([]); // Очищаем результаты при ошибке
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Обработчик изменения текста поиска (автопоиск)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchText(value); // Обновление текста
+    fetchSearchResults(value); // Выполняем поиск
+  };
+
+  // Обработчик нажатия кнопки "Поиск"
+  const handleSearchClick = () => {
+    fetchSearchResults(searchText); // Выполняем поиск
+  };
+
+  const handleSelectAdmin = (adminId: number) => {
+    // Навигация на страницу Workloads с параметром ID
+    console.log("ok")
+    navigate(`/workloads/${adminId}`);
+    console.log("ok")
+  };
   return (
-    <>
+    <div>
       <Header
         style={{
           display: "flex",
@@ -57,39 +58,68 @@ const AppHeader: React.FC = () => {
           backgroundColor: "#BC4A00",
         }}
       >
-        {/* Логотип или название */}
-        <Link
-          to="/"
+        <div
           style={{
             color: "white",
             fontSize: "20px",
             fontWeight: "bold",
-            backgroundColor: "#BC4A00",
           }}
         >
           Weapon - Owner Panel
-        </Link>
+        </div>
 
-        {/* Строка поиска */}
-        <Search
-          placeholder="Поиск администраторов (ID, Имя, Фамилия)"
-          enterButton="Поиск"
-          size="middle"
-          value={searchText}
-          onChange={(e) => handleSearch(e.target.value)} // Обработка ввода
-          onSearch={handleSearch} // Обработка кнопки "Поиск"
-          style={{ maxWidth: 400 }}
-        />
+        {/* Поле поиска с кнопкой */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Spin spinning={loading}>
+            <Input
+              placeholder="Поиск администраторов (ID, Имя, Логин, Email)"
+              size="middle"
+              value={searchText}
+              onChange={handleInputChange} // Автопоиск при вводе текста
+              style={{ maxWidth: 400 }}
+            />
+          </Spin>
+          <Button
+            type="primary"
+            style={{
+              backgroundColor: "rgb(0, 120, 95)",
+              border: "none",
+            }}
+            onClick={handleSearchClick} // Поиск при нажатии на кнопку
+          >
+            Поиск
+          </Button>
+        </div>
       </Header>
 
-      {/* Отображение результатов поиска */}
+      {/* Результаты поиска */}
       <div style={{ padding: "20px" }}>
         <h3>Результаты поиска:</h3>
-        {filteredAdmins.length > 0 ? (
+        {searchResults.length > 0 ? (
           <ul>
-            {filteredAdmins.map((admin) => (
-              <li key={admin.id}>
-                ID: {admin.id}, Имя: {admin.name}, Фамилия: {admin.surname}
+            {searchResults.map((admin) => (
+              <li
+                key={admin.id}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                <div>
+                  ID: {admin.id}, Имя: {admin.first_name} {admin.last_name}, Логин: {admin.username}, Email: {admin.email}
+                </div>
+                <Button
+      type="primary"
+      onClick={() => handleSelectAdmin(admin.id)} // Пример ID администратора
+      style={{
+        backgroundColor: "rgb(0, 120, 95)",
+        border: "none",
+      }}
+    >
+      Выбрать
+    </Button>
               </li>
             ))}
           </ul>
@@ -97,7 +127,7 @@ const AppHeader: React.FC = () => {
           <p>Ничего не найдено</p>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -17,13 +17,13 @@ namespace weaponOwnerApi.Data
                 new Admin
                 {
                     id = 1,
-                    first_name = "superadmin",
-                    last_name = "superadmin",
-                    email = "sa@net.com",
-                    username = "superadmin",
+                    first_name = "Иван",
+                    last_name = "Петренко",
+                    email = "ivanpetrenko@net.com",
+                    username = "ivanpetrenko",
                     password = "123",
                     is_active = true,
-                    card_count = 0
+                    card_count = 1
                 }
             );
         }

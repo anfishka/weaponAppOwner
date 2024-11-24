@@ -10,7 +10,10 @@ const Sidebar: React.FC = () => {
     ? "1"
     : location.pathname.includes("/settings")
     ? "3"
+     : location.pathname.includes("/addadmin")
+    ? "4"
     : "";
+    
 
   return (
     <Menu style={{ width: 256, height: "100vh" }} mode="inline" theme="dark" selectedKeys={[selectedKey]}>
@@ -21,7 +24,10 @@ const Sidebar: React.FC = () => {
       <NavLink to="/workloads/:id">Нагрузка</NavLink>
     </Menu.Item>
     <Menu.Item key="3">
-      <NavLink to="/settings">Управление</NavLink>
+      <NavLink to="/settings/:id">Управление</NavLink>
+    </Menu.Item>
+    <Menu.Item key="4">
+      <NavLink to="/addadmin">Добавить администратора</NavLink>
     </Menu.Item>
   </Menu>
   );

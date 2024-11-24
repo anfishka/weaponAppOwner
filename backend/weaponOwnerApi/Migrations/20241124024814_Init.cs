@@ -31,8 +31,8 @@ namespace weaponOwnerApi.Migrations
 
             migrationBuilder.InsertData(
                 table: "admins",
-                columns: new[] { "id", "email", "first_name", "is_active", "last_name", "password", "username" },
-                values: new object[] { 1, "sa@net.com", "superadmin", true, "superadmin", "123", "superadmin" });
+                columns: new[] { "id", "card_count", "email", "first_name", "is_active", "last_name", "password", "username" },
+                values: new object[] { 1, 1, "ivanpetrenko@net.com", "Иван", true, "Петренко", "123", "ivanpetrenko" });
         }
 
         /// <inheritdoc />

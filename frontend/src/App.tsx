@@ -5,17 +5,23 @@ import Footer from "./layouts/Footer";
 import { AuthProvider } from "./contexts/AuthContext";
 import Sidebar from "./components/Sidebar"
 import AdminsSection from "./components/AdminsSection";
-import WorkloadsSection from "./components/WorkloadsSection";
 import SettingsSection from "./components/SettingsSection";
 import AppHeader from "./components/AppHeader";
 import Home from "./components/Home";
+import ErrorBoundary from "antd/es/alert/ErrorBoundary";
+import AdminsWorkloads from "./components/AdminsWorkloads";
+import AddAdminSection from "./components/AddAdminSection";
 
 
-const App: React.FC = () => ( 
+const App: React.FC = () => 
+  {
+  return( 
+    <ErrorBoundary>
   <AuthProvider>
   <BrowserRouter>
       <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         {/* Header — фиксированная шапка */}
+        
            {/* Header */}
            <AppHeader />
         <div style={{ display: "flex", flex: 1 }}>
@@ -30,9 +36,13 @@ const App: React.FC = () => (
                 <Route path="/" element={<Home />} />
                 <Route path="/admins" element={<AdminsSection />} />
                 {/* Страница с нагрузкой администраторов */}
-                <Route path="/workloads/:id" element={<WorkloadsSection />} />
+                <Route path="/workloads/:id" element={<AdminsWorkloads />} />
                 {/* Страница настроек */}
-                <Route path="/settings" element={<SettingsSection />} />
+                <Route path="//settings/:id" element={<SettingsSection />} />
+                <Route path="/addadmin" element={<AddAdminSection />} />
+
+   
+                
               </Routes>
             </main>
           </div>
@@ -41,7 +51,9 @@ const App: React.FC = () => (
       </div>
     </BrowserRouter>
 </AuthProvider> 
+</ErrorBoundary>
 );
+  }
 
 
 export default App;

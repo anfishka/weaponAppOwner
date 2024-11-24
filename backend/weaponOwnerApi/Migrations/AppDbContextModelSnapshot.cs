@@ -70,13 +70,13 @@ namespace weaponOwnerApi.Migrations
                         new
                         {
                             id = 1,
-                            card_count = 0,
-                            email = "sa@net.com",
-                            first_name = "superadmin",
+                            card_count = 1,
+                            email = "ivanpetrenko@net.com",
+                            first_name = "Иван",
                             is_active = true,
-                            last_name = "superadmin",
+                            last_name = "Петренко",
                             password = "123",
-                            username = "superadmin"
+                            username = "ivanpetrenko"
                         });
                 });
 #pragma warning restore 612, 618

@@ -1,42 +1,44 @@
-import React from "react";
-import { Table, Button } from "antd";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Table, Button, Spin, Alert } from "antd";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+  model?: string;
+  description?: string;
+  imageUrl?: string;
+  is_visible: boolean;
+  updatedAt?: string;
+  createdAt?: string;
+  adminId: number;
+}
 
 const AdminsWorkloads: React.FC = () => {
-  const location = useLocation();
-  const admin = location.state; // Получение данных администратора из состояния маршрута
+  const { id } = useParams<{ id: string }>(); // Получение adminId из URL
+  const [data, setData] = useState<Product[]>([]); // Данные для таблицы
+  const [loading, setLoading] = useState<boolean>(true); // Состояние загрузки
+  const [error, setError] = useState<string | null>(null); // Состояние ошибки
 
-  // Данные для таблицы (замените на реальные данные нагрузок)
-  const data = [
-    {
-      key: "1",
-      id: 1,
-      weaponName: "AK-47",
-      dateAdded: "2024-10-10",
-      dateEdited: "2024-10-12",
-    },
-    {
-      key: "2",
-      id: 2,
-      weaponName: "M16",
-      dateAdded: "2024-10-11",
-      dateEdited: "2024-10-13",
-    },
-    {
-      key: "3",
-      id: 3,
-      weaponName: "Sniper Rifle",
-      dateAdded: "2024-10-15",
-      dateEdited: "2024-10-17",
-    },
-  ];
+  useEffect(() => {
+    // Получение данных от API
+    const fetchProductsByAdmin = async () => {
+      try {
+        const response = await axios.get<Product[]>(
+          `https://localhost:7208/api/Products/by-admin/${id}`
+        );
+        setData(response.data);
+      } catch (err: any) {
+        setError("Ошибка загрузки данных администратора.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Обработчик кнопки "Показать"
-  const handleShowClick = (id: number) => {
-    const clientHost = "https://client-landing.com"; // URL лендинга клиента
-    const anchor = `#card-${id}`; // Якорь на конкретный элемент
-    window.location.href = `${clientHost}${anchor}`;
-  };
+    if (id) fetchProductsByAdmin();
+  }, [id]);
 
   // Колонки таблицы
   const columns = [
@@ -48,18 +50,27 @@ const AdminsWorkloads: React.FC = () => {
     },
     {
       title: "Название оружия",
-      dataIndex: "weaponName",
-      key: "weaponName",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Категория",
+      dataIndex: "category",
+      key: "category",
     },
     {
       title: "Дата добавления",
-      dataIndex: "dateAdded",
-      key: "dateAdded",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) =>
+        date ? new Date(date).toLocaleDateString() : "N/A",
     },
     {
       title: "Дата редактирования",
-      dataIndex: "dateEdited",
-      key: "dateEdited",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      render: (date: string) =>
+        date ? new Date(date).toLocaleDateString() : "N/A",
     },
     {
       title: "Действие",
@@ -67,34 +78,54 @@ const AdminsWorkloads: React.FC = () => {
       render: (_: any, record: { id: number }) => (
         <Button
           type="primary"
-          onClick={() => handleShowClick(record.id)}
           style={{
             backgroundColor: "#BC4A00",
             border: "none",
           }}
         >
-          Показать
+          Посмотреть
         </Button>
       ),
     },
   ];
 
+  // Состояние загрузки
+  if (loading) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <Spin tip="Загрузка данных..." size="large" />
+      </div>
+    );
+  }
+
+  // Состояние ошибки
+  if (error) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <Alert message="Ошибка" description={error} type="error" showIcon />
+      </div>
+    );
+  }
+
+  // Отрисовка таблицы или сообщения, если данных нет
   return (
     <div style={{ padding: "20px", backgroundColor: "#001529", color: "white" }}>
-      {/* Отображение информации о выбранном администраторе */}
-      {admin && (
-        <h2 style={{ color: "rgb(0, 120, 95)", marginBottom: "20px" }}>
-          Нагрузки администратора: {admin.id} - {admin.name}
-        </h2>
+      <h2 style={{ color: "rgb(0, 120, 95)", marginBottom: "20px" }}>
+        Нагрузки администратора: {id}
+      </h2>
+      {data.length > 0 ? (
+        <Table
+          dataSource={data}
+          columns={columns}
+          bordered
+          pagination={{ pageSize: 5 }}
+          style={{ backgroundColor: "#252525" }}
+        />
+      ) : (
+        <p style={{ color: "white", textAlign: "center" }}>
+          Нет данных для администратора с ID: {id}
+        </p>
       )}
-
-      <Table
-        dataSource={data}
-        columns={columns}
-        bordered
-        pagination={{ pageSize: 5 }}
-        style={{ backgroundColor: "#252525" }}
-      />
     </div>
   );
 };
