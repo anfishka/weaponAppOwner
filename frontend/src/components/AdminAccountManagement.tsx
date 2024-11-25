@@ -28,7 +28,7 @@ const AdminAccountManagement: React.FC = () => {
     const fetchAdmin = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${apiUrl}/api/admins/${id}`);
+        const response = await axios.get(`https://weaponadminapi20241125032218.azurewebsites.net/api/admins/${id}`);
         setAdminData(response.data);
         setIsActive(response.data.is_active); // Установить начальное состояние Switch
       } catch (error: any) {
@@ -78,7 +78,7 @@ const AdminAccountManagement: React.FC = () => {
       console.log("Отправляем PATCH-запрос:", patchDoc);
   
       const response = await axios.patch(
-        `${apiUrl}/api/Admins/${id}`,
+        `https://weaponadminapi20241125032218.azurewebsites.net/api/Admins/${id}`,
         patchDoc,
         {
           headers: { "Content-Type": "application/json-patch+json" },
