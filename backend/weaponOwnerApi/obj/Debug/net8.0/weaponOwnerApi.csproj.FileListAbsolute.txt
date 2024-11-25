@@ -173,3 +173,4 @@ E:\weaponAppOwner\backend\weaponOwnerApi\obj\Debug\net8.0\weaponOwnerApi.genrunt
 E:\weaponAppOwner\backend\weaponOwnerApi\obj\Debug\net8.0\ref\weaponOwnerApi.dll
 E:\weaponAppOwner\backend\weaponOwnerApi\bin\Debug\net8.0\BCrypt.Net-Next.dll
 E:\weaponAppOwner\backend\weaponOwnerApi\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\weaponAppOwner\backend\weaponOwnerApi\bin\Debug\net8.0\host.json

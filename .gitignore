@@ -400,3 +400,10 @@ appsettings.*.json
 
 # JetBrains Rider
 *.sln.iml
+# Visual Studio temporary files
+.vs/
+*.vsidx
+*.suo
+*.user
+*.cache
+
